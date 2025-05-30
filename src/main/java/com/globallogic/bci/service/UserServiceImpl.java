@@ -8,8 +8,10 @@ import com.globallogic.bci.dto.UserPostDto;
 import com.globallogic.bci.exception.CustomException;
 import com.globallogic.bci.model.User;
 import com.globallogic.bci.repository.IUserRepository;
+import com.globallogic.bci.security.Encryptor;
 import com.globallogic.bci.security.JwtUtil;
 import com.globallogic.bci.util.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -34,11 +36,11 @@ public class UserServiceImpl implements IUserService {
         try {
             validateFields(userDto);
 
-            // TODO: If viable, try to encrypt password field
-
             // TODO: Name and phone, optional fields
 
             // TODO: Junit coverage
+
+            // TODO: Add some logs
 
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
@@ -48,6 +50,9 @@ public class UserServiceImpl implements IUserService {
             user.setCreated(Timestamp.valueOf(LocalDateTime.now()));
             user.setLastLogin(Timestamp.valueOf(LocalDateTime.now()));
             user.setActive(true);
+
+            // Encrypt password field
+            user.setPassword(Encryptor.encryptStringSSLRSA(userDto.getPassword()));
 
             String token = JwtUtil.generateToken(user.getId(), user.getEmail());
             user.setToken(token);

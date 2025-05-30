@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public class JwtUtil {
 
-    private static final String SECRET_KEY = "secretKey"; // Guárdala bien
+    private static final String SECRET_KEY = "secretKey";
 
     public static String generateToken(UUID userId, String email) {
         long expirationTime = 1000 * 60 * 60 * 24; // 24h

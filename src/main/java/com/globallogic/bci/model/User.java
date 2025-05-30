@@ -29,7 +29,7 @@ public class User implements Serializable {
     @Column(name = "lastLogin", columnDefinition = "TIMESTAMP")
     private Timestamp lastLogin;
 
-    @Column(name = "token", length = 210)
+    @Column(name = "token", length = 250)
     private String token;
 
     @Column(name = "isActive", length = 1)
@@ -39,10 +39,10 @@ public class User implements Serializable {
     @Column(name = "name", length = 50)
     private String name;
 
-    @Column(name = "email", length = 20)
+    @Column(name = "email", length = 30)
     private String email;
 
-    @Column(name = "password", length = 15)
+    @Column(name = "password", length = 345)
     private String password;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
