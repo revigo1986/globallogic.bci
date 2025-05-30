@@ -63,8 +63,8 @@ public class UserServiceImpl implements IUserService {
             UserPostDto userPostDto = objectMapper.convertValue(user, UserPostDto.class);
 
             return userPostDto;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (Exception ex) {
+            throw new CustomException("Error while creating user. Message: "+ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
 
     }
@@ -72,11 +72,15 @@ public class UserServiceImpl implements IUserService {
     @Override
     @Transactional
     public UserGetDto getUser(String token) {
+        try {
 
-        User user = userRepository.findByToken(token).orElseThrow(() -> new CustomException("User does not exist", HttpStatus.NOT_FOUND.value()));
+            User user = userRepository.findByToken(token).orElseThrow(() -> new CustomException("User does not exist", HttpStatus.NOT_FOUND.value()));
 
-        return objectMapper.convertValue(user, UserGetDto.class);
+            return objectMapper.convertValue(user, UserGetDto.class);
 
+        } catch (Exception ex) {
+            throw new CustomException("Error while getting user. Message: "+ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
     }
 
     /**
