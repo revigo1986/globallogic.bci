@@ -1,21 +1,27 @@
 package com.globallogic.bci.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Data
 @Table(name = "User")
-public class User {
+public class User implements Serializable {
 
     @Id
-    private String id;
+    private UUID id;
 
     @Column(name = "created", columnDefinition = "TIMESTAMP")
     private Timestamp created;
@@ -27,18 +33,21 @@ public class User {
     private String token;
 
     @Column(name = "isActive", length = 1)
-    private boolean isActive;
+    @JsonProperty("isActive")
+    private boolean active;
 
     @Column(name = "name", length = 50)
     private String name;
 
-    @Column(name = "email", length = 15)
+    @Column(name = "email", length = 20)
     private String email;
 
     @Column(name = "password", length = 15)
     private String password;
 
-    @EmbeddedId
-    private Phone phone;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonManagedReference
+    private List<Phone> phones;
 
 }
+

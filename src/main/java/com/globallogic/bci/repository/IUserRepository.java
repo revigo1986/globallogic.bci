@@ -1,13 +1,14 @@
 package com.globallogic.bci.repository;
 
+import com.globallogic.bci.model.Phone;
 import com.globallogic.bci.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.Id;
+import java.util.Optional;
 
 @Repository
-public interface IUserRepository extends JpaRepository<User, Id> {
+public interface IUserRepository extends JpaRepository<User, Phone> {
 
-    User findByToken(String token);
+    Optional<User> findByToken(String token);
 }

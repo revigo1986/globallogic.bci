@@ -2,10 +2,12 @@ package com.globallogic.bci.service;
 
 
 import com.globallogic.bci.dto.UserDto;
+import com.globallogic.bci.dto.UserGetDto;
+import com.globallogic.bci.dto.UserPostDto;
 
 public interface IUserService {
 
-    UserDto createUser(UserDto userDto);
+    UserPostDto createUser(UserDto userDto);
 
-    UserDto getUser(String token);
+    UserGetDto getUser(String token);
 }

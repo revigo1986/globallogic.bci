@@ -1,7 +1,8 @@
 package com.globallogic.bci.controller;
 
 import com.globallogic.bci.dto.UserDto;
-import com.globallogic.bci.model.User;
+import com.globallogic.bci.dto.UserGetDto;
+import com.globallogic.bci.dto.UserPostDto;
 import com.globallogic.bci.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -18,16 +19,16 @@ public class Controller {
     }
 
     @PostMapping("/sign-up")
-    public UserDto signUp(@RequestBody UserDto userDto) {
+    public UserPostDto signUp(@RequestBody UserDto userDto) {
 
-        userDto = userService.createUser(userDto);
+        return userService.createUser(userDto);
 
-        return userDto;
     }
 
     @GetMapping("/login")
-    public UserDto login(@RequestParam String token) {
+    public UserGetDto login(@RequestParam String token) {
 
         return userService.getUser(token);
+
     }
 }

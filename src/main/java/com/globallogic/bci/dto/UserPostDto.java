@@ -9,25 +9,28 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class UserDto implements Serializable {
+public class UserPostDto implements Serializable {
 
-    @JsonProperty("name")
-    private String name;
+    @JsonProperty("id")
+    private UUID id;
 
-    @JsonProperty("email")
-    private String email;
+    @JsonProperty("created")
+    private Timestamp created;
 
-    @JsonProperty("password")
-    private String password;
+    @JsonProperty("lastLogin")
+    private Timestamp lastLogin;
 
-    @JsonProperty("phones")
-    private List<PhoneDto> phones;
+    @JsonProperty("token")
+    private String token;
+
+    @JsonProperty("isActive")
+    private boolean active;
 
 }
