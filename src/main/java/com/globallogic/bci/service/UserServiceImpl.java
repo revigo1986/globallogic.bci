@@ -8,6 +8,7 @@ import com.globallogic.bci.dto.UserPostDto;
 import com.globallogic.bci.exception.CustomException;
 import com.globallogic.bci.model.User;
 import com.globallogic.bci.repository.IUserRepository;
+import com.globallogic.bci.security.JwtUtil;
 import com.globallogic.bci.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,15 +32,13 @@ public class UserServiceImpl implements IUserService {
     public UserPostDto createUser(UserDto userDto) {
 
         try {
-            // TODO: USE JWT TO GENERATE THE TOKEN
-
             validateFields(userDto);
 
             // TODO: If viable, try to encrypt password field
 
             // TODO: Name and phone, optional fields
 
-            // TODO: Error case, follow ErrorDto format
+            // TODO: Junit coverage
 
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
@@ -48,8 +47,10 @@ public class UserServiceImpl implements IUserService {
             user.setId(UUID.randomUUID());
             user.setCreated(Timestamp.valueOf(LocalDateTime.now()));
             user.setLastLogin(Timestamp.valueOf(LocalDateTime.now()));
-            user.setToken(UUID.randomUUID().toString());
             user.setActive(true);
+
+            String token = JwtUtil.generateToken(user.getId(), user.getEmail());
+            user.setToken(token);
 
             final User finalUser = user;
 
@@ -70,17 +71,19 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    @Transactional
     public UserGetDto getUser(String token) {
-        try {
 
-            User user = userRepository.findByToken(token).orElseThrow(() -> new CustomException("User does not exist", HttpStatus.NOT_FOUND.value()));
+        User user = userRepository.findByToken(token).orElseThrow(() -> new CustomException("User does not exist", HttpStatus.NOT_FOUND.value()));
 
-            return objectMapper.convertValue(user, UserGetDto.class);
+        // Regenerate token
+        token = JwtUtil.generateToken(user.getId(), user.getEmail());
+        user.setToken(token);
 
-        } catch (Exception ex) {
-            throw new CustomException("Error while getting user. Message: "+ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
-        }
+        // Update token
+        user = userRepository.save(user);
+
+        return objectMapper.convertValue(user, UserGetDto.class);
+
     }
 
     /**

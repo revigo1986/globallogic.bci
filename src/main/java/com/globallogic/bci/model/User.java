@@ -29,7 +29,7 @@ public class User implements Serializable {
     @Column(name = "lastLogin", columnDefinition = "TIMESTAMP")
     private Timestamp lastLogin;
 
-    @Column(name = "token", length = 50)
+    @Column(name = "token", length = 210)
     private String token;
 
     @Column(name = "isActive", length = 1)
