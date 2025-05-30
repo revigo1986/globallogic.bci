@@ -6,6 +6,7 @@ import com.globallogic.bci.dto.UserPostDto;
 import com.globallogic.bci.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,9 +17,10 @@ public class Controller {
     private IUserService userService;
 
     @GetMapping("/health-check")
-    public String healthCheck() {
-        return ResponseEntity.status(HttpStatus.OK).toString();
+    public ResponseEntity<String> healthCheck() {
+        return ResponseEntity.ok("OK");
     }
+
 
     @PostMapping("/sign-up")
     public UserPostDto signUp(@RequestBody UserDto userDto) {
