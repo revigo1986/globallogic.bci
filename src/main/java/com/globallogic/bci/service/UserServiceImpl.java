@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -23,6 +22,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class UserServiceImpl implements IUserService {
 
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -30,17 +30,19 @@ public class UserServiceImpl implements IUserService {
     @Autowired
     private IUserRepository userRepository;
 
+    /**
+     * Create user
+     * @param userDto
+     * @return
+     */
     @Override
     public UserPostDto createUser(UserDto userDto) {
 
+        log.info("Creating user");
         try {
             validateFields(userDto);
 
             // TODO: Name and phone, optional fields
-
-            // TODO: Junit coverage
-
-            // TODO: Add some logs
 
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
@@ -59,24 +61,38 @@ public class UserServiceImpl implements IUserService {
 
             final User finalUser = user;
 
-            user.getPhones().forEach(phone -> {
-                phone.setId(UUID.randomUUID());
-                phone.setUser(finalUser);
-            });
+            if (Optional.ofNullable(user.getPhones()).isPresent()) {
+                user.getPhones().forEach(phone -> {
+                    phone.setId(UUID.randomUUID());
+                    phone.setUser(finalUser);
+                });
+            }
 
             user = userRepository.save(user);
 
             UserPostDto userPostDto = objectMapper.convertValue(user, UserPostDto.class);
 
+            log.info("User created.");
+
             return userPostDto;
+        } catch (CustomException ce) {
+            throw ce;
         } catch (Exception ex) {
+            ex.printStackTrace();
             throw new CustomException("Error while creating user. Message: "+ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
 
     }
 
+    /**
+     * Get user
+     * @param token
+     * @return
+     */
     @Override
     public UserGetDto getUser(String token) {
+
+        log.info("Getting user according to given token");
 
         User user = userRepository.findByToken(token).orElseThrow(() -> new CustomException("User does not exist", HttpStatus.NOT_FOUND.value()));
 
@@ -87,6 +103,8 @@ public class UserServiceImpl implements IUserService {
         // Update token
         user = userRepository.save(user);
 
+        log.info("User token updated");
+
         return objectMapper.convertValue(user, UserGetDto.class);
 
     }
@@ -94,9 +112,20 @@ public class UserServiceImpl implements IUserService {
     /**
      * Validate some special fields
      * @param userDto
-     * @throws Exception
      */
-    private void validateFields(UserDto userDto) throws Exception {
+    void validateFields(UserDto userDto) {
+
+        log.info("Validating email and password");
+
+        // Validate email is coming
+        if (Optional.ofNullable(userDto.getEmail()).isEmpty()) {
+            throw new CustomException("Email field required", HttpStatus.BAD_REQUEST.value());
+        }
+
+        // Validate password is coming
+        if (Optional.ofNullable(userDto.getPassword()).isEmpty()) {
+            throw new CustomException("Password field required", HttpStatus.BAD_REQUEST.value());
+        }
 
         // Validate email format
         if (!StringUtils.isValidEmail(userDto.getEmail())){
