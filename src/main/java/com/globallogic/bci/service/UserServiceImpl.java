@@ -42,8 +42,6 @@ public class UserServiceImpl implements IUserService {
         try {
             validateFields(userDto);
 
-            // TODO: Name and phone, optional fields
-
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
             User user = objectMapper.convertValue(userDto, User.class);
