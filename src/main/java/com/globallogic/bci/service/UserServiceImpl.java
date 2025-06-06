@@ -74,9 +74,10 @@ public class UserServiceImpl implements IUserService {
 
             return userPostDto;
         } catch (CustomException ce) {
+            log.error("Error while creating user. Message: "+ce.getMessage());
             throw ce;
         } catch (Exception ex) {
-            ex.printStackTrace();
+            log.error("Error while creating user. Message: "+ex.getMessage());
             throw new CustomException("Error while creating user. Message: "+ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
 
