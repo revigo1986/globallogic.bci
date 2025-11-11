@@ -1,6 +1,7 @@
 package com.globallogic.bci.security;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import java.util.Date;
 import java.util.UUID;
 
@@ -17,20 +18,5 @@ public class JwtUtil {
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
                 .compact();
-    }
-
-    public static Claims extractClaims(String token) throws Exception {
-        return Jwts.parser()
-                .setSigningKey(SECRET_KEY)
-                .parseClaimsJws(token)
-                .getBody();
-    }
-
-    public static String extractEmail(String token) throws Exception {
-        return extractClaims(token).getSubject();
-    }
-
-    public static UUID extractUserId(String token) throws Exception {
-        return UUID.fromString((String) extractClaims(token).get("userId"));
     }
 }

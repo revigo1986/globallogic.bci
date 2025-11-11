@@ -1,26 +1,24 @@
 package com.globallogic.bci.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.sql.Timestamp;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.io.Serializable;
-import java.sql.Timestamp;
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ErrorDto implements Serializable {
+public class ErrorDto {
 
-    @JsonProperty("timestamp")
-    private Timestamp timestamp;
+  private Timestamp timestamp;
+  private int code;
+  private String detail;
 
-    @JsonProperty("code")
-    private int code;
-
-    @JsonProperty("detail")
-    private String detail;
+  public ErrorDto(int code, String detail) {
+    this.timestamp = new Timestamp(System.currentTimeMillis());
+    this.code = code;
+    this.detail = detail;
+  }
 }

@@ -1,22 +1,19 @@
 package com.globallogic.bci.exception;
 
-import com.globallogic.bci.dto.ErrorDto;
+import com.globallogic.bci.dto.MultiErrorDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.sql.Timestamp;
-
 @RestControllerAdvice
-public class GlobalExceptionHandler {
+public class  GlobalExceptionHandler {
 
-    @ExceptionHandler(CustomException.class)
-    public ResponseEntity<ErrorDto> handleCustomException(CustomException ex) {
-        ErrorDto error = new ErrorDto();
-        error.setTimestamp(new Timestamp(System.currentTimeMillis()));
-        error.setCode(ex.getCode());
-        error.setDetail(ex.getMessage());
+    @ExceptionHandler(MultipleCustomException.class)
+    public ResponseEntity<MultiErrorDto> handleMultipleCustomException(MultipleCustomException ex) {
+      MultiErrorDto response = new MultiErrorDto(ex.getErrors());
 
-        return ResponseEntity.status(ex.getCode()).body(error);
+      return ResponseEntity
+          .status(ex.getHttpStatus())
+          .body(response);
     }
 }

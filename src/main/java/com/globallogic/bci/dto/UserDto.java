@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
 import java.util.List;
 
 @Getter

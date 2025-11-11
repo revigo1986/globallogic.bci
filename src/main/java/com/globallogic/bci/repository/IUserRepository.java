@@ -11,4 +11,6 @@ import java.util.Optional;
 public interface IUserRepository extends JpaRepository<User, Phone> {
 
     Optional<User> findByToken(String token);
+
+    Optional<User> findByName(String userName);
 }

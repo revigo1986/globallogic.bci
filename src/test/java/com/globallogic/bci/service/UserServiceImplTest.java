@@ -4,9 +4,16 @@ import com.globallogic.bci.dto.PhoneDto;
 import com.globallogic.bci.dto.UserDto;
 import com.globallogic.bci.dto.UserGetDto;
 import com.globallogic.bci.dto.UserPostDto;
-import com.globallogic.bci.exception.CustomException;
+import com.globallogic.bci.exception.ErrorCode;
+import com.globallogic.bci.exception.MultipleCustomException;
+import com.globallogic.bci.model.Phone;
 import com.globallogic.bci.model.User;
 import com.globallogic.bci.repository.IUserRepository;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -14,15 +21,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.UUID;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 
@@ -71,43 +72,70 @@ public class UserServiceImplTest {
     }
 
     @Test
+    public void testCreateUser_UserAlreadyExists() {
+
+      Phone phone = new Phone();
+      phone.setNumber(1234567);
+      phone.setCityCode(1);
+      phone.setCountryCode("57");
+
+      User user = new User();
+      user.setName("Test");
+      user.setEmail("test@email.com");
+      user.setPassword("a2bCdefg1");
+      user.setPhones(Collections.singletonList(phone));
+
+      when(userRepository.findByName(any())).thenReturn(Optional.of(user));
+
+      MultipleCustomException exception = assertThrows(MultipleCustomException.class, () -> userService.createUser(validUserDto));
+
+      assertEquals(1, exception.getErrors().size());
+      assertEquals(ErrorCode.USER_ALREADY_EXISTS.getCode(), exception.getErrors().get(0).getCode());
+      assertEquals(ErrorCode.USER_ALREADY_EXISTS.getMessage(), exception.getErrors().get(0).getDetail());
+    }
+
+    @Test
     public void testCreateUser_InvalidEmail() {
         validUserDto.setEmail("invalid-email");
 
-        CustomException exception = assertThrows(CustomException.class, () -> userService.createUser(validUserDto));
+        MultipleCustomException exception = assertThrows(MultipleCustomException.class, () -> userService.createUser(validUserDto));
 
-        assertEquals("Not a valid email", exception.getMessage());
-        assertEquals(HttpStatus.BAD_REQUEST.value(), exception.getCode());
+        assertEquals(1, exception.getErrors().size());
+        assertEquals(ErrorCode.INVALID_EMAIL.getCode(), exception.getErrors().get(0).getCode());
+        assertEquals(ErrorCode.INVALID_EMAIL.getMessage(), exception.getErrors().get(0).getDetail());
     }
 
     @Test
     public void testCreateUser_EmailNotNull() {
         validUserDto.setEmail(null);
 
-        CustomException exception = assertThrows(CustomException.class, () -> userService.createUser(validUserDto));
+        MultipleCustomException exception = assertThrows(MultipleCustomException.class, () -> userService.createUser(validUserDto));
 
-        assertEquals("Email field required", exception.getMessage());
-        assertEquals(HttpStatus.BAD_REQUEST.value(), exception.getCode());
+        assertEquals(1, exception.getErrors().size());
+        assertEquals(ErrorCode.FIELD_REQUIRED.getCode(), exception.getErrors().get(0).getCode());
+        assertEquals(ErrorCode.FIELD_REQUIRED.getMessage() + "email", exception.getErrors().get(0).getDetail());
     }
 
     @Test
     public void testCreateUser_InvalidPassword() {
         validUserDto.setPassword("abc");
 
-        CustomException exception = assertThrows(CustomException.class, () -> userService.createUser(validUserDto));
+        MultipleCustomException exception = assertThrows(MultipleCustomException.class, () -> userService.createUser(validUserDto));
 
-        assertEquals("Not a valid password", exception.getMessage());
-        assertEquals(HttpStatus.BAD_REQUEST.value(), exception.getCode());
+        assertEquals(1, exception.getErrors().size());
+        assertEquals(ErrorCode.INVALID_PASSWORD.getCode(), exception.getErrors().get(0).getCode());
+        assertEquals(ErrorCode.INVALID_PASSWORD.getMessage(), exception.getErrors().get(0).getDetail());
     }
 
     @Test
     public void testCreateUser_PasswordNotNull() {
         validUserDto.setPassword(null);
 
-        CustomException exception = assertThrows(CustomException.class, () -> userService.createUser(validUserDto));
+        MultipleCustomException exception = assertThrows(MultipleCustomException.class, () -> userService.createUser(validUserDto));
 
-        assertEquals("Password field required", exception.getMessage());
-        assertEquals(HttpStatus.BAD_REQUEST.value(), exception.getCode());
+        assertEquals(1, exception.getErrors().size());
+        assertEquals(ErrorCode.FIELD_REQUIRED.getCode(), exception.getErrors().get(0).getCode());
+        assertEquals(ErrorCode.FIELD_REQUIRED.getMessage() + "password", exception.getErrors().get(0).getDetail());
     }
 
     @Test
@@ -129,11 +157,11 @@ public class UserServiceImplTest {
     public void testGetUser_NotFound() {
         when(userRepository.findByToken("token")).thenReturn(Optional.empty());
 
-        CustomException exception = assertThrows(CustomException.class, () -> {
+        MultipleCustomException exception = assertThrows(MultipleCustomException.class, () -> {
             userService.getUser("token");
         });
 
-        assertEquals("User does not exist", exception.getMessage());
-        assertEquals(HttpStatus.NOT_FOUND.value(), exception.getCode());
+        assertEquals(ErrorCode.USER_DOES_NOT_EXIST.getMessage(), exception.getErrors().get(0).getDetail());
+        assertEquals(HttpStatus.NOT_FOUND.value(), exception.getErrors().get(0).getCode());
     }
 }
